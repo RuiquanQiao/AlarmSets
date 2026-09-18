@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<full-backup-content>
+    <include domain="database" path="alarmsets.db" />
+    <include domain="file" path="imported_ringtones/" />
+    <exclude domain="file" path="updates/" />
+</full-backup-content>

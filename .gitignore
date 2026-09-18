@@ -1,0 +1,26 @@
+*.iml
+.gradle/
+.kotlin/
+/local.properties
+/.idea/
+.DS_Store
+/build
+*/build
+**/build/
+/captures
+.externalNativeBuild
+.cxx
+local.properties
+
+# Release signing material must never be committed.
+*.jks
+*.keystore
+keystore.properties
+
+# Intermediate audio from the ringtone generator; only .ogg is committed.
+tools/ringtone-gen/**/*.wav
+tools/ringtone-gen/preview/
+
+# Working notes and local tooling. Kept out of the public repository.
+/research/
+/.claude/

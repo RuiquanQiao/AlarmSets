@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="ringtone_system_default">System default</string>
+    <string name="ringtone_system_default_desc">Whatever this phone uses for alarms</string>
+    <string name="ringtone_silent">Silent</string>
+    <string name="ringtone_silent_desc">No sound. Vibration still works</string>
+</resources>

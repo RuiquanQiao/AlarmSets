@@ -1,0 +1,13 @@
+# Normalise line endings so the repository stays consistent across platforms.
+* text=auto eol=lf
+
+# Windows-only scripts keep CRLF.
+*.bat text eol=crlf
+
+# Binary assets must never be munged.
+*.ogg binary
+*.wav binary
+*.png binary
+*.jar binary
+*.apk binary
+gradlew text eol=lf

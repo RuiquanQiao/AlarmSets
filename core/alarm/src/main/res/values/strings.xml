@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="alarm">Alarm</string>
+    <string name="action_snooze">Snooze</string>
+    <string name="action_dismiss">Dismiss</string>
+
+    <string name="channel_ringing_name">Ringing alarms</string>
+    <string name="channel_ringing_desc">Shown while an alarm is going off. Keep this on, or alarms cannot reach you.</string>
+    <string name="channel_status_name">Alarm status</string>
+    <string name="channel_status_desc">Quiet notices, such as a schedule being rebuilt after a restart.</string>
+</resources>

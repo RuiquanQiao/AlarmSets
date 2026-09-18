@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  A stack of three time markers: one set, several alarms, one switch.
+  Drawn inside the 72dp safe zone of the 108dp adaptive icon canvas.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <!-- Top bar, full width: the set itself -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M30,36 L70,36 A6,6 0 0 1 70,48 L30,48 A6,6 0 0 1 30,36 Z" />
+    <!-- The switch knob on the set bar -->
+    <path
+        android:fillColor="#B9A4FF"
+        android:pathData="M64,36 m-6,6 a6,6 0 1,0 12,0 a6,6 0 1,0 -12,0" />
+
+    <!-- Two shorter bars: the alarms inside it -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.78"
+        android:pathData="M30,54 L60,54 A5,5 0 0 1 60,64 L30,64 A5,5 0 0 1 30,54 Z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:fillAlpha="0.55"
+        android:pathData="M30,70 L52,70 A5,5 0 0 1 52,80 L30,80 A5,5 0 0 1 30,70 Z" />
+</vector>
