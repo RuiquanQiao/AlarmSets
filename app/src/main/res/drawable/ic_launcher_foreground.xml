@@ -1,7 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  A stack of three time markers: one set, several alarms, one switch.
-  Drawn inside the 72dp safe zone of the 108dp adaptive icon canvas.
+  A bell, cut into three bands.
+
+  The bell says "alarm" at a glance; the cuts say there is a stack of them,
+  which is the whole product. The old icon was three plain bars and read as a
+  list or a hamburger menu.
+
+  Construction, inside the 108dp adaptive canvas:
+
+      knob     circle r4.5 at (54,22)
+      dome     circle r15 centred (54,40)        ->  y 25..40
+      flare    one quadratic per side, 69->78    ->  y 40..66
+      rim      inner span x 34..74, corners r4   ->  y 66..72
+      clapper  circle r4.5 at (54,79)
+      cuts     y 39..43 and y 56..60             ->  4dp each
+      bands    14 / 13 / 12 dp of visible height
+
+  Two earlier passes are worth recording, because both only showed up once the
+  thing was sitting on a real launcher next to Google's own icons:
+
+  1. r18 dome with a 50dp rim rendered squat and bottom-heavy - a beehive.
+  2. Straight sides rendered as a jar on a plate. A bell flares; without the
+     flare the rim reads as a separate object no matter how it is sized.
+
+  The bands are clipped by the outline rather than drawn as separate shapes, so
+  they stay aligned by construction, and the monochrome themed icon works from
+  this same drawable.
 -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="108dp"
@@ -9,22 +33,27 @@
     android:viewportWidth="108"
     android:viewportHeight="108">
 
-    <!-- Top bar, full width: the set itself -->
+    <!-- Crown knob. Overlaps the dome so the two read as one piece. -->
     <path
         android:fillColor="#FFFFFF"
-        android:pathData="M30,36 L70,36 A6,6 0 0 1 70,48 L30,48 A6,6 0 0 1 30,36 Z" />
-    <!-- The switch knob on the set bar -->
-    <path
-        android:fillColor="#B9A4FF"
-        android:pathData="M64,36 m-6,6 a6,6 0 1,0 12,0 a6,6 0 1,0 -12,0" />
+        android:pathData="M54,22 m-4.5,0 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0" />
 
-    <!-- Two shorter bars: the alarms inside it -->
+    <!-- Bell body, sliced into three bands by the clip -->
+    <group>
+        <clip-path android:pathData="M39,40 a15,15 0 0 1 30,0 q3,18 9,26 a4,4 0 0 1 -4,6 h-40 a4,4 0 0 1 -4,-6 q6,-8 9,-26 z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M20,23 h68 v16 h-68 z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M20,43 h68 v13 h-68 z" />
+        <path
+            android:fillColor="#FFFFFF"
+            android:pathData="M20,60 h68 v13 h-68 z" />
+    </group>
+
+    <!-- Clapper, tucked close under the rim -->
     <path
         android:fillColor="#FFFFFF"
-        android:fillAlpha="0.78"
-        android:pathData="M30,54 L60,54 A5,5 0 0 1 60,64 L30,64 A5,5 0 0 1 30,54 Z" />
-    <path
-        android:fillColor="#FFFFFF"
-        android:fillAlpha="0.55"
-        android:pathData="M30,70 L52,70 A5,5 0 0 1 52,80 L30,80 A5,5 0 0 1 30,70 Z" />
+        android:pathData="M54,79 m-4.5,0 a4.5,4.5 0 1,0 9,0 a4.5,4.5 0 1,0 -9,0" />
 </vector>
