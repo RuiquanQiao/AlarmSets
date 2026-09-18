@@ -61,7 +61,13 @@ interface AlarmScheduler {
 
     suspend fun cancelAll()
 
-    suspend fun scheduleSnooze(alarmId: Long, triggerAtMillis: Long)
+    /**
+     * [snoozeCount] is how many times this alarm has already been snoozed, and
+     * must be carried through to the next firing. Without it the count resets
+     * every time and `SnoozeConfig.maxRepeats` silently never applies, which
+     * turns "let me snooze three times" into "let me snooze forever".
+     */
+    suspend fun scheduleSnooze(alarmId: Long, triggerAtMillis: Long, snoozeCount: Int)
 
     suspend fun cancelSnooze(alarmId: Long)
 

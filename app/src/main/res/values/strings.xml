@@ -29,6 +29,8 @@
 
     <!-- Alarm editor -->
     <string name="alarm_label">Label</string>
+    <string name="time_use_keyboard">Type a time</string>
+    <string name="time_use_dial">Use the dial</string>
     <string name="repeat">Repeat</string>
     <string name="repeat_once">Once</string>
     <string name="ringtone">Ringtone</string>

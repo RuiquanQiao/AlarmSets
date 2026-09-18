@@ -13,6 +13,8 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Keyboard
+import androidx.compose.material.icons.filled.Schedule
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -24,6 +26,7 @@ import androidx.compose.material3.Slider
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TimeInput
 import androidx.compose.material3.TimePicker
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.material3.rememberTimePickerState
@@ -59,6 +62,7 @@ fun AlarmEditorSheet(
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     var draft by remember(alarm.id, alarm.time) { mutableStateOf(alarm) }
+    var keyboardEntry by remember { mutableStateOf(false) }
     val context = LocalContext.current
 
     val timeState = rememberTimePickerState(
@@ -81,10 +85,36 @@ fun AlarmEditorSheet(
                 .navigationBarsPadding(),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            TimePicker(
-                state = timeState,
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-            )
+            // Dial or keyboard. Entering a whole timetable means setting a dozen
+            // alarms in a row, and dragging a dial that many times is miserable,
+            // so typing is one tap away and the choice sticks for the session.
+            if (keyboardEntry) {
+                TimeInput(
+                    state = timeState,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                )
+            } else {
+                TimePicker(
+                    state = timeState,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                )
+            }
+
+            TextButton(
+                onClick = { keyboardEntry = !keyboardEntry },
+                modifier = Modifier.align(Alignment.Start),
+            ) {
+                Icon(
+                    if (keyboardEntry) Icons.Default.Schedule else Icons.Default.Keyboard,
+                    contentDescription = null,
+                )
+                Spacer(Modifier.size(8.dp))
+                Text(
+                    stringResource(
+                        if (keyboardEntry) R.string.time_use_dial else R.string.time_use_keyboard,
+                    ),
+                )
+            }
 
             OutlinedTextField(
                 value = draft.label,

@@ -14,11 +14,13 @@ import android.util.Log
 import io.github.ruiquanqiao.alarmsets.core.model.Alarm
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 /**
  * Owns a ringing alarm: sound, vibration, the full-screen notification, and the
@@ -149,30 +151,52 @@ class AlarmRingService : Service() {
         }
     }
 
-    private fun canSnooze(alarm: Alarm): Boolean =
-        alarm.snooze.enabled &&
-            (alarm.snooze.maxRepeats == 0 || snoozeCount < alarm.snooze.maxRepeats)
+    private fun canSnooze(alarm: Alarm): Boolean = alarm.snooze.allowsAnother(snoozeCount)
 
     private fun handleSnooze() {
         val runtime = AlarmRuntimeHolder.peek() ?: return stopAndRelease()
         val alarm = current ?: return stopAndRelease()
         if (!canSnooze(alarm)) return handleDismiss()
 
+        silence()
         scope.launch {
-            val at = runtime.timeProvider.nowEpochMillis() + alarm.snooze.minutes * 60_000L
-            runtime.scheduler.scheduleSnooze(alarm.id, at)
-            Log.i(TAG, "snoozed alarm ${alarm.id} for ${alarm.snooze.minutes}m")
-            stopAndRelease()
+            withContext(NonCancellable) {
+                val at = runtime.timeProvider.nowEpochMillis() + alarm.snooze.minutes * 60_000L
+                val nextCount = snoozeCount + 1
+                runtime.scheduler.scheduleSnooze(alarm.id, at, nextCount)
+                Log.i(
+                    TAG,
+                    "snoozed alarm ${alarm.id} for ${alarm.snooze.minutes}m " +
+                        "(snooze $nextCount of ${alarm.snooze.maxRepeats.takeIf { it > 0 } ?: -1})",
+                )
+            }
+            release()
         }
     }
 
     private fun handleDismiss() {
+        // Silence first: the user pressed dismiss and should not have to wait
+        // for any bookkeeping before the noise stops.
+        silence()
+
         val runtime = AlarmRuntimeHolder.peek()
         val alarmId = current?.id
-        if (runtime != null && alarmId != null) {
-            scope.launch { runtime.scheduler.cancelSnooze(alarmId) }
+        if (runtime == null || alarmId == null) {
+            release()
+            return
         }
-        stopAndRelease()
+
+        scope.launch {
+            // NonCancellable matters here. stopSelf() below tears the service
+            // down, which cancels this scope; without the guard the pending
+            // snooze survives a dismiss and the alarm comes back minutes later.
+            // Dismiss has to mean dismissed.
+            withContext(NonCancellable) {
+                runCatching { runtime.scheduler.cancelSnooze(alarmId) }
+                    .onFailure { Log.e(TAG, "could not cancel snooze for $alarmId", it) }
+            }
+            release()
+        }
     }
 
     private fun startVibration() {
@@ -208,15 +232,23 @@ class AlarmRingService : Service() {
         }
     }
 
-    private fun stopAndRelease() {
+    /** Stops the noise. Safe to call more than once. */
+    private fun silence() {
         autoSilenceJob?.cancel()
         AlarmRuntimeHolder.peek()?.tonePlayer?.stop()
         stopVibration()
+    }
+
+    /** Drops the wake lock and tears the service down. */
+    private fun release() {
+        silence()
         runCatching { wakeLock?.takeIf { it.isHeld }?.release() }
         wakeLock = null
         stopForeground(STOP_FOREGROUND_REMOVE)
         stopSelf()
     }
+
+    private fun stopAndRelease() = release()
 
     override fun onDestroy() {
         stopAndRelease()

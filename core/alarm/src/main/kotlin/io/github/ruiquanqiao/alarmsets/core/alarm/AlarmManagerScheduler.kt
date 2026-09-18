@@ -78,10 +78,15 @@ class AlarmManagerScheduler(
         registered.set(emptySet())
     }
 
-    override suspend fun scheduleSnooze(alarmId: Long, triggerAtMillis: Long) = withContext(io) {
+    override suspend fun scheduleSnooze(
+        alarmId: Long,
+        triggerAtMillis: Long,
+        snoozeCount: Int,
+    ) = withContext(io) {
         val intent = Intent(context, AlarmReceiver::class.java).apply {
             action = AlarmIntents.ACTION_SNOOZE_FIRED
             putExtra(AlarmIntents.EXTRA_ALARM_ID, alarmId)
+            putExtra(AlarmIntents.EXTRA_SNOOZE_COUNT, snoozeCount)
         }
         val pendingIntent = PendingIntent.getBroadcast(
             context,

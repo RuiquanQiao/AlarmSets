@@ -15,7 +15,22 @@ data class SnoozeConfig(
         require(maxRepeats >= 0) { "maxRepeats must not be negative: $maxRepeats" }
     }
 
+    /**
+     * Whether the user may snooze once more, having already snoozed
+     * [timesAlreadySnoozed] times.
+     *
+     * Pure and testable on purpose: the count has to be carried across process
+     * boundaries by the scheduler, and when that plumbing broke once, the limit
+     * silently stopped applying and snoozing became unlimited. The rule lives
+     * here so a test can hold it.
+     */
+    fun allowsAnother(timesAlreadySnoozed: Int): Boolean =
+        enabled && (maxRepeats == UNLIMITED || timesAlreadySnoozed < maxRepeats)
+
     companion object {
+        /** `maxRepeats == 0` means no limit. */
+        const val UNLIMITED = 0
+
         val DEFAULT = SnoozeConfig()
         val DISABLED = SnoozeConfig(enabled = false)
     }

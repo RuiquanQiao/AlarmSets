@@ -13,6 +13,14 @@
         android:maxSdkVersion="32" />
 
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!--
+      Required for the ringing screen to appear by itself instead of sitting
+      quietly in the notification shade. From Android 14 this is a restricted
+      permission, auto-granted only to apps whose core function is alarms or
+      calls - which this is.
+    -->
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.VIBRATE" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />

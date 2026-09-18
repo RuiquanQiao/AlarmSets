@@ -64,6 +64,31 @@ class TimeOfDayTest {
     }
 }
 
+class SnoozeConfigTest {
+
+    @Test
+    fun `stops allowing snoozes once the limit is reached`() {
+        val snooze = SnoozeConfig(enabled = true, minutes = 9, maxRepeats = 3)
+        assertTrue(snooze.allowsAnother(0))
+        assertTrue(snooze.allowsAnother(2))
+        // The fourth press must not be offered.
+        assertTrue(!snooze.allowsAnother(3))
+        assertTrue(!snooze.allowsAnother(9))
+    }
+
+    @Test
+    fun `zero means unlimited`() {
+        val snooze = SnoozeConfig(enabled = true, maxRepeats = SnoozeConfig.UNLIMITED)
+        assertTrue(snooze.allowsAnother(0))
+        assertTrue(snooze.allowsAnother(50))
+    }
+
+    @Test
+    fun `disabled never allows a snooze`() {
+        assertTrue(!SnoozeConfig.DISABLED.allowsAnother(0))
+    }
+}
+
 class AlarmSetTest {
 
     private fun alarm(hour: Int, minute: Int, enabled: Boolean = true) = Alarm(
