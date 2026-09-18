@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Logo Preview — Concepts</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    padding: 2rem;
+    transition: background-color 0.3s, color 0.3s;
+    line-height: 1.6;
+  }
+  body.light { background: #f5f5f5; color: #333; }
+  body.dark  { background: #1a1a1a; color: #eee; }
+  .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: .5rem; }
+  h1 { font-size: 1.5rem; font-weight: 600; }
+  .lede { opacity: .7; font-size: .9rem; margin-bottom: 2rem; max-width: 60ch; }
+  .toggle {
+    padding: .5rem 1rem; border: 1px solid currentColor; border-radius: 6px;
+    background: transparent; color: inherit; cursor: pointer; font-size: .875rem;
+  }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem; }
+  .card { border: 1px solid; border-color: rgba(128,128,128,.3); border-radius: 12px; padding: 1.25rem; }
+  .card-img { display: grid; place-items: center; margin-bottom: 1rem; }
+  .card-img img { width: 200px; height: 200px; border-radius: 22.5%; display: block; }
+  .card-label { font-weight: 600; font-size: .95rem; margin-bottom: .25rem; }
+  .card-note { font-size: .82rem; opacity: .7; }
+  .strip { display: flex; align-items: center; gap: 14px; margin-top: 1rem;
+           padding-top: 1rem; border-top: 1px solid rgba(128,128,128,.25); }
+  .strip img { display: block; border-radius: 22.5%; }
+  .strip .round { border-radius: 50%; }
+  .strip span { font-size: .72rem; opacity: .6; font-family: ui-monospace, Menlo, Consolas, monospace; }
+</style>
+</head>
+<body class="dark">
+  <div class="header">
+    <h1>AlarmSets — concepts</h1>
+    <button class="toggle" onclick="document.body.classList.toggle('dark');document.body.classList.toggle('light')">Toggle theme</button>
+  </div>
+  <p class="lede">Four directions, not four variations. The strip under each card is the honest test:
+     48px is the launcher list, 32px is a favicon, and the round crop is the mask Android applies
+     on most phones.</p>
+  <div class="grid">
+
+    <div class="card">
+      <div class="card-img"><img src="concepts/concept-1.svg" alt="concept-1"></div>
+      <div class="card-label">concept-1 — two overlapping bells</div>
+      <div class="card-note">The composition you asked for. Says &ldquo;more than one&rdquo; instantly.
+        The gap is cut into the back bell&rsquo;s own outline, so it survives a flat monochrome tint.</div>
+      <div class="strip">
+        <img src="concepts/concept-1.svg" width="48" height="48" alt=""><span>48</span>
+        <img src="concepts/concept-1.svg" width="32" height="32" alt=""><span>32</span>
+        <img class="round" src="concepts/concept-1.svg" width="48" height="48" alt=""><span>round</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img"><img src="concepts/concept-2.svg" alt="concept-2"></div>
+      <div class="card-label">concept-2 — a stack that becomes a bell</div>
+      <div class="card-note">Reads as a stack first, a bell second. Widest gaps of the four, so it
+        holds together smallest &mdash; but the bell reading is the weakest.</div>
+      <div class="strip">
+        <img src="concepts/concept-2.svg" width="48" height="48" alt=""><span>48</span>
+        <img src="concepts/concept-2.svg" width="32" height="32" alt=""><span>32</span>
+        <img class="round" src="concepts/concept-2.svg" width="48" height="48" alt=""><span>round</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img"><img src="concepts/concept-3.svg" alt="concept-3"></div>
+      <div class="card-label">concept-3 — clock face inside a bell</div>
+      <div class="card-note">One bold shape, ticks cut as real holes. Most &ldquo;clock app&rdquo; of the
+        four, which is also its risk: it looks like every other clock app.</div>
+      <div class="strip">
+        <img src="concepts/concept-3.svg" width="48" height="48" alt=""><span>48</span>
+        <img src="concepts/concept-3.svg" width="32" height="32" alt=""><span>32</span>
+        <img class="round" src="concepts/concept-3.svg" width="48" height="48" alt=""><span>round</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-img"><img src="concepts/concept-4.svg" alt="concept-4"></div>
+      <div class="card-label">concept-4 — a switch whose knob is a bell</div>
+      <div class="card-note">The only one that draws the actual mechanic: one switch, a whole schedule.
+        At 32px the bell dissolves and it becomes a plain toggle.</div>
+      <div class="strip">
+        <img src="concepts/concept-4.svg" width="48" height="48" alt=""><span>48</span>
+        <img src="concepts/concept-4.svg" width="32" height="32" alt=""><span>32</span>
+        <img class="round" src="concepts/concept-4.svg" width="48" height="48" alt=""><span>round</span>
+      </div>
+    </div>
+
+  </div>
+</body>
+</html>

@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <rect width="512" height="512" fill="#4F378B"/>
+  <g id="track" fill="#FFFFFF" fill-rule="evenodd">
+    <path d="M108 256 A100 100 0 0 1 208 156 L304 156 A100 100 0 0 1 304 356 L208 356 A100 100 0 0 1 108 256 Z M130 256 A78 78 0 0 0 208 334 L304 334 A78 78 0 0 0 304 178 L208 178 A78 78 0 0 0 130 256 Z"/>
+  </g>
+  <g id="knob" fill="#FFFFFF" fill-rule="evenodd">
+    <path d="M304 194 A62 62 0 1 0 304 318 A62 62 0 1 0 304 194 Z M304 212 A44 44 0 1 1 304 300 A44 44 0 1 1 304 212 Z"/>
+  </g>
+  <g id="bell" fill="#FFFFFF">
+    <path d="M295 200 L313 200 L313 230 C314 244 318 254 330 266 L316 266 L316 270 A12 12 0 0 1 292 270 L292 266 L278 266 C290 254 294 244 295 230 Z"/>
+  </g>
+</svg>

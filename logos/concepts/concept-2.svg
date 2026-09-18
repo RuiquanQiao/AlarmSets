@@ -1,0 +1,17 @@
+<svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="AlarmSets mark: a stack of bars forming a bell">
+  <rect id="background" x="0" y="0" width="512" height="512" fill="#4F378B"/>
+  <g id="mark" fill="#FFFFFF">
+    <g id="crown">
+      <rect x="232" y="107" width="48" height="30" rx="15"/>
+    </g>
+    <g id="stack">
+      <rect id="bar-1" x="216" y="155" width="80" height="36" rx="18"/>
+      <rect id="bar-2" x="190" y="209" width="132" height="36" rx="18"/>
+      <rect id="bar-3" x="161" y="263" width="190" height="36" rx="18"/>
+      <rect id="bar-4-rim" x="130" y="317" width="252" height="36" rx="18"/>
+    </g>
+    <g id="clapper">
+      <circle cx="256" cy="385" r="17"/>
+    </g>
+  </g>
+</svg>

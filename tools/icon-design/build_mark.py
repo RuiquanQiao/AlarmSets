@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 """
-Generates the AlarmSets mark: two overlapping bells.
+SUPERSEDED. The shipped mark now comes from logos/iterations/iteration-1.svg,
+produced with the logo-designer skill. This script generated the earlier
+hand-built version and is kept only for its safe-zone checker, which is the
+part worth reusing: an adaptive icon is masked to a CIRCLE, and checking a
+bounding square instead is how the first diagonal composition shipped with a
+rim sliced off.
+
+Generates a two-overlapping-bells mark.
 
 The composition is the familiar one - a larger shape behind, a smaller one in
 front and offset, separated by a knockout gap - because it states "more than

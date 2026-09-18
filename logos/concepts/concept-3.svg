@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="AlarmSets">
+  <title>AlarmSets</title>
+  <rect x="0" y="0" width="512" height="512" fill="#4F378B"/>
+  <g id="crown">
+    <path fill="#FFFFFF" d="M230 148 L230 124 A12 12 0 0 1 242 112 L270 112 A12 12 0 0 1 282 124 L282 148 Z"/>
+  </g>
+  <g id="dial">
+    <path fill="#FFFFFF" fill-rule="evenodd" d="M174.02 300 A104 104 0 1 1 337.98 300 C344 316 358 322 372 332 L372 346 A10 10 0 0 1 362 356 L150 356 A10 10 0 0 1 140 346 L140 332 C154 322 168 316 174.02 300 Z M256 152 A84 84 0 1 0 256 320 A84 84 0 1 0 256 152 Z"/>
+  </g>
+  <g id="ticks">
+    <path fill="#FFFFFF" fill-rule="evenodd" d="M256 151 A85 85 0 1 0 256 321 A85 85 0 1 0 256 151 Z M289.24 197.34 L311.31 180.10 L323.62 195.86 L301.56 213.10 Z M306 226 L334 226 L334 246 L306 246 Z M301.56 258.90 L323.62 276.14 L311.31 291.90 L289.24 274.66 Z"/>
+  </g>
+</svg>
