@@ -6,6 +6,7 @@ import io.github.ruiquanqiao.alarmsets.core.data.db.AlarmSetWithAlarms
 import io.github.ruiquanqiao.alarmsets.core.data.db.SnoozeEmbedded
 import io.github.ruiquanqiao.alarmsets.core.model.Alarm
 import io.github.ruiquanqiao.alarmsets.core.model.AlarmSet
+import io.github.ruiquanqiao.alarmsets.core.model.RingBehaviour
 import io.github.ruiquanqiao.alarmsets.core.model.RingtoneRef
 import io.github.ruiquanqiao.alarmsets.core.model.SetAccent
 import io.github.ruiquanqiao.alarmsets.core.model.SnoozeConfig
@@ -39,6 +40,10 @@ internal fun AlarmEntity.toDomain(): Alarm = Alarm(
     ringtone = decodeRingtone(ringtoneJson),
     vibrate = vibrate,
     volumePercent = volumePercent.coerceIn(0, 100),
+    // An unreadable value must never stop an alarm ringing, so fall back to the
+    // behaviour every alarm had before this column existed.
+    ringBehaviour = runCatching { RingBehaviour.valueOf(ringBehaviour) }
+        .getOrDefault(RingBehaviour.UNTIL_DISMISSED),
     autoSilenceMinutes = autoSilenceMinutes.coerceAtLeast(0),
     snooze = SnoozeConfig(
         enabled = snooze.enabled,
@@ -58,6 +63,7 @@ internal fun Alarm.toEntity(): AlarmEntity = AlarmEntity(
     ringtoneJson = ringtone.encode(),
     vibrate = vibrate,
     volumePercent = volumePercent,
+    ringBehaviour = ringBehaviour.name,
     autoSilenceMinutes = autoSilenceMinutes,
     snooze = SnoozeEmbedded(
         enabled = snooze.enabled,

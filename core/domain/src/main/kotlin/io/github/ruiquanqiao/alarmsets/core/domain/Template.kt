@@ -2,6 +2,7 @@ package io.github.ruiquanqiao.alarmsets.core.domain
 
 import io.github.ruiquanqiao.alarmsets.core.model.Alarm
 import io.github.ruiquanqiao.alarmsets.core.model.AlarmSet
+import io.github.ruiquanqiao.alarmsets.core.model.RingBehaviour
 import io.github.ruiquanqiao.alarmsets.core.model.RingtoneRef
 import io.github.ruiquanqiao.alarmsets.core.model.SetAccent
 import io.github.ruiquanqiao.alarmsets.core.model.SnoozeConfig
@@ -47,6 +48,11 @@ data class TemplateAlarm(
     val autoSilenceMinutes: Int = 10,
     val snoozeMinutes: Int = 9,
     val snoozeEnabled: Boolean = true,
+    /**
+     * Name of a [io.github.ruiquanqiao.alarmsets.core.model.RingBehaviour].
+     * Defaulted so templates written before this field existed still load.
+     */
+    val ringBehaviour: String = "UNTIL_DISMISSED",
 )
 
 sealed interface TemplateError {
@@ -80,6 +86,7 @@ class TemplateCodec(
                     autoSilenceMinutes = alarm.autoSilenceMinutes,
                     snoozeMinutes = alarm.snooze.minutes,
                     snoozeEnabled = alarm.snooze.enabled,
+                    ringBehaviour = alarm.ringBehaviour.name,
                 )
             },
         )
@@ -123,6 +130,8 @@ class TemplateCodec(
                     ?: RingtoneRef.Bundled(Alarm.DEFAULT_RINGTONE_KEY),
                 vibrate = item.vibrate,
                 volumePercent = item.volumePercent.coerceIn(0, 100),
+                ringBehaviour = runCatching { RingBehaviour.valueOf(item.ringBehaviour) }
+                    .getOrDefault(RingBehaviour.UNTIL_DISMISSED),
                 autoSilenceMinutes = item.autoSilenceMinutes.coerceAtLeast(0),
                 snooze = SnoozeConfig(
                     enabled = item.snoozeEnabled,

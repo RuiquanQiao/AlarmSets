@@ -48,6 +48,9 @@ data class AlarmEntity(
     @ColumnInfo(name = "ringtone_json") val ringtoneJson: String,
     val vibrate: Boolean,
     @ColumnInfo(name = "volume_percent") val volumePercent: Int,
+    /** Name of a [io.github.ruiquanqiao.alarmsets.core.model.RingBehaviour]. */
+    @ColumnInfo(name = "ring_behaviour", defaultValue = "UNTIL_DISMISSED")
+    val ringBehaviour: String,
     @ColumnInfo(name = "auto_silence_minutes") val autoSilenceMinutes: Int,
     @Embedded(prefix = "snooze_") val snooze: SnoozeEmbedded,
     @ColumnInfo(name = "sort_index") val sortIndex: Int,

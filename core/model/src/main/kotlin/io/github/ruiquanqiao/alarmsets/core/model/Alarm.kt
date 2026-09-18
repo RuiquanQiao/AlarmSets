@@ -37,6 +37,31 @@ data class SnoozeConfig(
 }
 
 /**
+ * How the alarm behaves once it starts ringing.
+ *
+ * These are two genuinely different things, which is why this is separate from
+ * [Alarm.autoSilenceMinutes]. "Stop after 10 minutes" still means a tone
+ * looping for ten minutes; it is a safety net on a wake-up alarm, not a way to
+ * play something once.
+ */
+@Serializable
+enum class RingBehaviour {
+    /**
+     * Loops until the user dismisses it, or until [Alarm.autoSilenceMinutes]
+     * gives up. The right behaviour for getting someone out of bed.
+     */
+    UNTIL_DISMISSED,
+
+    /**
+     * Plays the tone through exactly once and stops on its own, with no fade-in
+     * and no full-screen takeover. This is how a school bell, a factory hooter
+     * or a period chime works: it marks a moment and then it is over. Nothing
+     * has to be dismissed, because nothing is still ringing.
+     */
+    PLAY_ONCE,
+}
+
+/**
  * A single point in time that rings.
  *
  * [enabled] is the alarm's *own* switch and nothing else is allowed to write
@@ -54,7 +79,14 @@ data class Alarm(
     val ringtone: RingtoneRef = RingtoneRef.Bundled(DEFAULT_RINGTONE_KEY),
     val vibrate: Boolean = true,
     val volumePercent: Int = 80,
-    /** Stop ringing unattended after this many minutes. 0 means never. */
+    val ringBehaviour: RingBehaviour = RingBehaviour.UNTIL_DISMISSED,
+    /**
+     * Give up on an unattended alarm after this many minutes; 0 means never,
+     * which really does mean it loops forever until dismissed.
+     *
+     * Ignored when [ringBehaviour] is [RingBehaviour.PLAY_ONCE], because a tone
+     * that plays once is already over in seconds.
+     */
     val autoSilenceMinutes: Int = 10,
     val snooze: SnoozeConfig = SnoozeConfig.DEFAULT,
     /** Position within its set, so a schedule keeps a stable visual order. */
@@ -67,7 +99,25 @@ data class Alarm(
 
     val isOneShot: Boolean get() = days.isEmpty
 
+    /** True when the alarm ends by itself and needs no dismissal. */
+    val stopsByItself: Boolean get() = ringBehaviour == RingBehaviour.PLAY_ONCE
+
     fun shiftedBy(minutes: Int): Alarm = copy(time = time.shiftedBy(minutes))
+
+    /**
+     * The settings a *new* alarm in the same set should start from: everything
+     * except this alarm's identity and its place in the day.
+     *
+     * Building a timetable means entering a dozen alarms that differ only in
+     * time, so re-picking the tone, the repeat days and the ring behaviour each
+     * time is the single most tedious thing about the app.
+     */
+    fun asTemplateFor(nextTime: TimeOfDay, sortIndex: Int): Alarm = copy(
+        id = NO_ID,
+        time = nextTime,
+        enabled = true,
+        sortIndex = sortIndex,
+    )
 
     companion object {
         const val NO_ID = 0L

@@ -44,6 +44,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
 import io.github.ruiquanqiao.alarmsets.R
 import io.github.ruiquanqiao.alarmsets.core.model.Alarm
+import io.github.ruiquanqiao.alarmsets.core.model.RingBehaviour
 import io.github.ruiquanqiao.alarmsets.core.model.RingtoneRef
 import io.github.ruiquanqiao.alarmsets.core.model.SnoozeConfig
 import io.github.ruiquanqiao.alarmsets.core.model.TimeOfDay
@@ -181,58 +182,106 @@ fun AlarmEditorSheet(
                 )
             }
 
-            ToggleRow(
-                title = stringResource(R.string.snooze),
-                subtitle = if (draft.snooze.enabled) {
-                    stringResource(R.string.snooze_minutes, draft.snooze.minutes)
-                } else {
-                    null
-                },
-                checked = draft.snooze.enabled,
-                onCheckedChange = {
-                    draft = draft.copy(snooze = draft.snooze.copy(enabled = it))
-                },
-            )
-
-            if (draft.snooze.enabled) {
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf(5, 9, 10, 15, 20).forEach { minutes ->
-                        FilterChip(
-                            selected = draft.snooze.minutes == minutes,
-                            onClick = {
-                                draft = draft.copy(
-                                    snooze = draft.snooze.copy(minutes = minutes),
-                                )
-                            },
-                            label = { Text("${minutes}m") },
-                        )
-                    }
-                }
-            }
-
             Column {
                 Text(
-                    stringResource(R.string.auto_silence),
+                    stringResource(R.string.ring_behaviour),
                     style = MaterialTheme.typography.titleSmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Spacer(Modifier.height(8.dp))
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    listOf(0, 5, 10, 20, 30).forEach { minutes ->
+                    RingBehaviour.entries.forEach { behaviour ->
                         FilterChip(
-                            selected = draft.autoSilenceMinutes == minutes,
-                            onClick = { draft = draft.copy(autoSilenceMinutes = minutes) },
+                            selected = draft.ringBehaviour == behaviour,
+                            onClick = { draft = draft.copy(ringBehaviour = behaviour) },
                             label = {
                                 Text(
-                                    if (minutes == 0) {
-                                        stringResource(R.string.auto_silence_never)
-                                    } else {
-                                        "${minutes}m"
-                                    },
+                                    stringResource(
+                                        when (behaviour) {
+                                            RingBehaviour.UNTIL_DISMISSED -> R.string.ring_until_dismissed
+                                            RingBehaviour.PLAY_ONCE -> R.string.ring_play_once
+                                        },
+                                    ),
                                 )
                             },
                         )
                     }
+                }
+                Spacer(Modifier.height(6.dp))
+                Text(
+                    stringResource(
+                        when (draft.ringBehaviour) {
+                            RingBehaviour.UNTIL_DISMISSED -> R.string.ring_until_dismissed_desc
+                            RingBehaviour.PLAY_ONCE -> R.string.ring_play_once_desc
+                        },
+                    ),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+            }
+
+            // Snoozing and giving up only mean something while a tone is still
+            // looping. A play-once alarm is over before either could apply.
+            if (draft.ringBehaviour == RingBehaviour.UNTIL_DISMISSED) {
+                ToggleRow(
+                    title = stringResource(R.string.snooze),
+                    subtitle = if (draft.snooze.enabled) {
+                        stringResource(R.string.snooze_minutes, draft.snooze.minutes)
+                    } else {
+                        null
+                    },
+                    checked = draft.snooze.enabled,
+                    onCheckedChange = {
+                        draft = draft.copy(snooze = draft.snooze.copy(enabled = it))
+                    },
+                )
+
+                if (draft.snooze.enabled) {
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf(5, 9, 10, 15, 20).forEach { minutes ->
+                            FilterChip(
+                                selected = draft.snooze.minutes == minutes,
+                                onClick = {
+                                    draft = draft.copy(
+                                        snooze = draft.snooze.copy(minutes = minutes),
+                                    )
+                                },
+                                label = { Text("${minutes}m") },
+                            )
+                        }
+                    }
+                }
+
+                Column {
+                    Text(
+                        stringResource(R.string.auto_silence),
+                        style = MaterialTheme.typography.titleSmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                    Spacer(Modifier.height(8.dp))
+                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                        listOf(0, 5, 10, 20, 30).forEach { minutes ->
+                            FilterChip(
+                                selected = draft.autoSilenceMinutes == minutes,
+                                onClick = { draft = draft.copy(autoSilenceMinutes = minutes) },
+                                label = {
+                                    Text(
+                                        if (minutes == 0) {
+                                            stringResource(R.string.auto_silence_never)
+                                        } else {
+                                            "${minutes}m"
+                                        },
+                                    )
+                                },
+                            )
+                        }
+                    }
+                    Spacer(Modifier.height(4.dp))
+                    Text(
+                        stringResource(R.string.auto_silence_hint),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
                 }
             }
 

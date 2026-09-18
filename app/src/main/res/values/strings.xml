@@ -38,8 +38,15 @@
     <string name="volume">Volume</string>
     <string name="snooze">Snooze</string>
     <string name="snooze_minutes">%1$d minutes</string>
-    <string name="auto_silence">Stop ringing after</string>
+    <string name="ring_behaviour">When it goes off</string>
+    <string name="ring_until_dismissed">Ring until dismissed</string>
+    <string name="ring_until_dismissed_desc">Loops until you turn it off. For waking up.</string>
+    <string name="ring_play_once">Play once</string>
+    <string name="ring_play_once_desc">Plays the tone through once and stops by itself. Nothing to dismiss, and it will not take over the screen. This is how a school bell works.</string>
+
+    <string name="auto_silence">Give up after</string>
     <string name="auto_silence_never">Never</string>
+    <string name="auto_silence_hint">This is when an unattended alarm stops trying, not how long the tone plays. &quot;Never&quot; means it keeps ringing until you turn it off.</string>
     <string name="auto_silence_minutes">%1$d minutes</string>
     <string name="delete_alarm">Delete alarm</string>
 

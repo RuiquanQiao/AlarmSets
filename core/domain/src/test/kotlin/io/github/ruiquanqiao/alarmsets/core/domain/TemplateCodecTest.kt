@@ -2,6 +2,7 @@ package io.github.ruiquanqiao.alarmsets.core.domain
 
 import io.github.ruiquanqiao.alarmsets.core.model.Alarm
 import io.github.ruiquanqiao.alarmsets.core.model.AlarmSet
+import io.github.ruiquanqiao.alarmsets.core.model.RingBehaviour
 import io.github.ruiquanqiao.alarmsets.core.model.RingtoneRef
 import io.github.ruiquanqiao.alarmsets.core.model.SetAccent
 import io.github.ruiquanqiao.alarmsets.core.model.TimeOfDay
@@ -90,6 +91,35 @@ class TemplateCodecTest {
             RingtoneRef.Bundled(Alarm.DEFAULT_RINGTONE_KEY),
             restored.alarms[0].ringtone,
         )
+    }
+
+    @Test
+    fun `ring behaviour travels with the template`() {
+        val bells = schedule.copy(
+            alarms = schedule.alarms.map {
+                it.copy(ringBehaviour = RingBehaviour.PLAY_ONCE)
+            },
+        )
+        val restored = codec.parse(codec.export(bells))
+            .mapCatching { codec.toAlarmSet(it).getOrThrow() }
+            .getOrThrow()
+        // A shared timetable of school bells is worthless if every alarm turns
+        // back into something you have to dismiss on the other end.
+        assertTrue(restored.alarms.all { it.ringBehaviour == RingBehaviour.PLAY_ONCE })
+    }
+
+    @Test
+    fun `a template written before ring behaviour existed still loads`() {
+        val old = codec.export(schedule)
+            .lines()
+            .filterNot { it.contains("ringBehaviour") }
+            .joinToString("\n")
+            .replace(",\n        }", "\n        }")
+            .replace(",\n    }", "\n    }")
+        val restored = codec.parse(old)
+            .mapCatching { codec.toAlarmSet(it).getOrThrow() }
+            .getOrThrow()
+        assertTrue(restored.alarms.all { it.ringBehaviour == RingBehaviour.UNTIL_DISMISSED })
     }
 
     @Test

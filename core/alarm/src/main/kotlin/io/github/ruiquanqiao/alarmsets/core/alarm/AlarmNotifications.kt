@@ -46,11 +46,17 @@ object AlarmNotifications {
         )
     }
 
+    /**
+     * @param fullScreenIntent null for an alarm that plays once and stops. A
+     *        full-screen takeover only earns its place when something is still
+     *        ringing and needs a decision.
+     */
     fun buildRinging(
         context: Context,
         alarm: Alarm,
         setName: String,
-        fullScreenIntent: PendingIntent,
+        contentIntent: PendingIntent,
+        fullScreenIntent: PendingIntent?,
         dismissIntent: PendingIntent,
         snoozeIntent: PendingIntent?,
     ): Notification {
@@ -63,12 +69,14 @@ object AlarmNotifications {
             .setCategory(NotificationCompat.CATEGORY_ALARM)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setOngoing(true)
+            .setOngoing(fullScreenIntent != null)
             .setAutoCancel(false)
-            // The full-screen intent is what turns the screen on and shows the
-            // ring UI over the lock screen.
-            .setFullScreenIntent(fullScreenIntent, true)
-            .setContentIntent(fullScreenIntent)
+            .setContentIntent(contentIntent)
+            .apply {
+                // The full-screen intent is what turns the screen on and shows
+                // the ring UI over the lock screen.
+                if (fullScreenIntent != null) setFullScreenIntent(fullScreenIntent, true)
+            }
             .apply {
                 if (snoozeIntent != null) {
                     addAction(

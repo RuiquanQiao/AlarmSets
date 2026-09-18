@@ -75,17 +75,38 @@ class AlarmRingService : Service() {
             current = alarm
             currentSetName = runtime.repository.getSet(alarm.setId)?.name.orEmpty()
 
-            startForegroundWithNotification(runtime, alarm, setId)
+            // A play-once alarm marks a moment rather than demanding attention:
+            // the tone runs through once, nothing loops, nothing fades in, and
+            // it does not take over the screen. That is what a school bell, a
+            // period chime or a factory hooter actually does.
+            val playOnce = alarm.stopsByItself
+
+            startForegroundWithNotification(runtime, alarm, setId, playOnce)
             runtime.tonePlayer.play(
                 ref = alarm.ringtone,
                 volumePercent = alarm.volumePercent,
-                loop = true,
-                fadeInMillis = FADE_IN_MILLIS,
-            ).onFailure { Log.e(TAG, "tone failed for alarm $alarmId", it) }
+                loop = !playOnce,
+                fadeInMillis = if (playOnce) 0L else FADE_IN_MILLIS,
+                onComplete = if (playOnce) {
+                    {
+                        Log.i(TAG, "alarm $alarmId played once and stopped")
+                        release()
+                    }
+                } else {
+                    null
+                },
+            ).onFailure {
+                Log.e(TAG, "tone failed for alarm $alarmId", it)
+                // Without this a play-once alarm whose tone will not open would
+                // sit as a foreground service with nothing to end it.
+                if (playOnce) release()
+            }
 
-            if (alarm.vibrate) startVibration()
+            if (alarm.vibrate) startVibration(repeating = !playOnce)
 
-            if (alarm.autoSilenceMinutes > 0) {
+            // Auto-silence is a safety net for a tone that would otherwise loop
+            // forever. A play-once tone is already over in seconds.
+            if (!playOnce && alarm.autoSilenceMinutes > 0) {
                 autoSilenceJob = scope.launch {
                     delay(alarm.autoSilenceMinutes * 60_000L)
                     Log.i(TAG, "auto-silencing alarm $alarmId")
@@ -106,12 +127,21 @@ class AlarmRingService : Service() {
         runtime: AlarmRuntime,
         alarm: Alarm,
         setId: Long,
+        playOnce: Boolean,
     ) {
         AlarmNotifications.ensureChannels(this)
 
-        val fullScreen = AlarmNotifications.pendingActivity(
+        // A play-once alarm opens the app rather than the ring screen. A
+        // full-screen takeover for a four second chime would leave a dead
+        // "dismiss" screen behind after the sound had already finished - and a
+        // timetable would throw one up a dozen times a day.
+        val tapTarget = AlarmNotifications.pendingActivity(
             context = this,
-            intent = runtime.ringIntent(this, alarm.id, setId),
+            intent = if (playOnce) {
+                runtime.mainIntent(this)
+            } else {
+                runtime.ringIntent(this, alarm.id, setId)
+            },
             requestCode = AlarmIntents.triggerRequestCode(alarm.id),
         )
         val dismiss = AlarmNotifications.pendingServiceAction(
@@ -120,7 +150,8 @@ class AlarmRingService : Service() {
             alarmId = alarm.id,
             requestCode = AlarmIntents.triggerRequestCode(alarm.id) + 1,
         )
-        val snooze = if (canSnooze(alarm)) {
+        // Nothing to snooze when the tone has already finished.
+        val snooze = if (!playOnce && canSnooze(alarm)) {
             AlarmNotifications.pendingServiceAction(
                 context = this,
                 action = AlarmIntents.ACTION_SNOOZE,
@@ -135,7 +166,8 @@ class AlarmRingService : Service() {
             context = this,
             alarm = alarm,
             setName = currentSetName,
-            fullScreenIntent = fullScreen,
+            contentIntent = tapTarget,
+            fullScreenIntent = if (playOnce) null else tapTarget,
             dismissIntent = dismiss,
             snoozeIntent = snooze,
         )
@@ -199,7 +231,12 @@ class AlarmRingService : Service() {
         }
     }
 
-    private fun startVibration() {
+    /**
+     * @param repeating loops the pattern until stopped. A play-once alarm
+     *        buzzes once instead, so the phone does not keep shaking after its
+     *        tone has finished.
+     */
+    private fun startVibration(repeating: Boolean) {
         val vibrator = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             (getSystemService(VibratorManager::class.java))?.defaultVibrator
         } else {
@@ -208,8 +245,9 @@ class AlarmRingService : Service() {
         } ?: return
 
         val pattern = longArrayOf(0, 500, 500)
+        val repeatIndex = if (repeating) 0 else -1
         runCatching {
-            vibrator.vibrate(VibrationEffect.createWaveform(pattern, 0))
+            vibrator.vibrate(VibrationEffect.createWaveform(pattern, repeatIndex))
         }
     }
 

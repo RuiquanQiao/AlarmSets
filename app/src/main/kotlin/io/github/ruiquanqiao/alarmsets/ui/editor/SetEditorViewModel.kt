@@ -74,10 +74,27 @@ class SetEditorViewModel(
         }
     }
 
+    /**
+     * A new alarm inherits everything from the last one in the set, and only
+     * its time moves on.
+     *
+     * Entering a timetable means adding a dozen alarms that differ in nothing
+     * but the clock: same tone, same days, same volume, same ring behaviour.
+     * Re-picking all of that each time was the most tedious thing in the app.
+     * The first alarm in an empty set has nothing to inherit, so it falls back
+     * to the defaults.
+     */
     fun startNewAlarm() {
         val current = set.value ?: return
-        val suggested = current.latest?.shiftedBy(45) ?: TimeOfDay.of(7, 0)
-        editing.value = Alarm(setId = setId, time = suggested)
+        val previous = current.sortedByTime().lastOrNull()
+        editing.value = if (previous != null) {
+            previous.asTemplateFor(
+                nextTime = previous.time.shiftedBy(NEXT_ALARM_GAP_MINUTES),
+                sortIndex = current.alarms.size,
+            )
+        } else {
+            Alarm(setId = setId, time = TimeOfDay.of(7, 0))
+        }
     }
 
     fun startEditing(alarm: Alarm) {
@@ -126,5 +143,10 @@ class SetEditorViewModel(
             container.deleteAlarmSet(setId)
             events.send(EditorEvent.Closed)
         }
+    }
+
+    private companion object {
+        /** How far after the previous alarm a new one is suggested. */
+        const val NEXT_ALARM_GAP_MINUTES = 45
     }
 }

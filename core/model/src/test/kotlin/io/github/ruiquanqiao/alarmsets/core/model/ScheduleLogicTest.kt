@@ -89,6 +89,75 @@ class SnoozeConfigTest {
     }
 }
 
+class AlarmTemplateTest {
+
+    private val previous = Alarm(
+        id = 7L,
+        setId = 3L,
+        label = "First period",
+        time = TimeOfDay.of(8, 0),
+        enabled = false,
+        days = WeekDays.WEEKDAYS,
+        ringtone = RingtoneRef.Bundled("electric_bell_long"),
+        vibrate = false,
+        volumePercent = 55,
+        ringBehaviour = RingBehaviour.PLAY_ONCE,
+        autoSilenceMinutes = 0,
+        snooze = SnoozeConfig(enabled = false, minutes = 15, maxRepeats = 1),
+        sortIndex = 2,
+    )
+
+    @Test
+    fun `a new alarm inherits every setting from the previous one`() {
+        val next = previous.asTemplateFor(TimeOfDay.of(8, 45), sortIndex = 3)
+
+        assertEquals(WeekDays.WEEKDAYS, next.days)
+        assertEquals(RingtoneRef.Bundled("electric_bell_long"), next.ringtone)
+        assertEquals(RingBehaviour.PLAY_ONCE, next.ringBehaviour)
+        assertEquals(55, next.volumePercent)
+        assertEquals(0, next.autoSilenceMinutes)
+        assertEquals(false, next.vibrate)
+        assertEquals(previous.snooze, next.snooze)
+        assertEquals("First period", next.label)
+        assertEquals(3L, next.setId)
+    }
+
+    @Test
+    fun `but takes a new identity, time and position`() {
+        val next = previous.asTemplateFor(TimeOfDay.of(8, 45), sortIndex = 3)
+        assertEquals(Alarm.NO_ID, next.id)
+        assertEquals(TimeOfDay.of(8, 45), next.time)
+        assertEquals(3, next.sortIndex)
+    }
+
+    @Test
+    fun `and arrives switched on even if the previous one was off`() {
+        // Inheriting "off" would mean every alarm added after one you had
+        // switched off silently does nothing.
+        assertTrue(previous.asTemplateFor(TimeOfDay.of(9, 0), 3).enabled)
+    }
+}
+
+class RingBehaviourTest {
+
+    private fun alarm(behaviour: RingBehaviour) =
+        Alarm(setId = 1L, time = TimeOfDay.of(7, 0), ringBehaviour = behaviour)
+
+    @Test
+    fun `play once ends by itself, ring until dismissed does not`() {
+        assertTrue(alarm(RingBehaviour.PLAY_ONCE).stopsByItself)
+        assertTrue(!alarm(RingBehaviour.UNTIL_DISMISSED).stopsByItself)
+    }
+
+    @Test
+    fun `the default is the behaviour a wake-up alarm needs`() {
+        assertEquals(
+            RingBehaviour.UNTIL_DISMISSED,
+            Alarm(setId = 1L, time = TimeOfDay.of(7, 0)).ringBehaviour,
+        )
+    }
+}
+
 class AlarmSetTest {
 
     private fun alarm(hour: Int, minute: Int, enabled: Boolean = true) = Alarm(
