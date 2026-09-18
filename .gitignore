@@ -12,9 +12,12 @@
 .cxx
 local.properties
 
-# Release signing material must never be committed.
+# Release signing material must never be committed. Losing the key means never
+# being able to update the app again, so back it up somewhere outside this
+# folder - but never into git.
 *.jks
 *.keystore
+/keystore/
 keystore.properties
 
 # Intermediate audio from the ringtone generator; only .ogg is committed.
