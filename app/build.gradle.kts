@@ -28,8 +28,8 @@ android {
         applicationId = "io.github.ruiquanqiao.alarmsets"
         minSdk = libs.versions.minSdk.get().toInt()
         targetSdk = libs.versions.targetSdk.get().toInt()
-        versionCode = 2
-        versionName = "0.1.1"
+        versionCode = 3
+        versionName = "0.1.2"
 
         // Read by the updater so it knows which repository to ask.
         buildConfigField("String", "UPDATE_REPO_OWNER", "\"RuiquanQiao\"")
