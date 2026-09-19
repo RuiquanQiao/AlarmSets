@@ -34,6 +34,7 @@ import io.github.ruiquanqiao.alarmsets.ui.ringtones.RingtonePickerViewModel
 import io.github.ruiquanqiao.alarmsets.ui.settings.SettingsScreen
 import io.github.ruiquanqiao.alarmsets.ui.settings.SettingsViewModel
 import io.github.ruiquanqiao.alarmsets.ui.settings.exactAlarmSettingsIntent
+import io.github.ruiquanqiao.alarmsets.ui.sets.SetsEvent
 import io.github.ruiquanqiao.alarmsets.ui.sets.SetsScreen
 import io.github.ruiquanqiao.alarmsets.ui.sets.SetsViewModel
 import kotlinx.coroutines.launch
@@ -98,8 +99,44 @@ private fun AlarmSetsNavHost(container: AppContainer) {
             val vm: SetsViewModel = viewModel(factory = factory { SetsViewModel(container) })
             val state by vm.uiState.collectAsStateWithLifecycle()
             val expanded by vm.expandedSetIds.collectAsStateWithLifecycle()
+            val snackbarHostState = remember { SnackbarHostState() }
 
             LaunchedEffect(Unit) { vm.refreshWarnings() }
+
+            // Some file managers hand a .json file over as text/plain or with
+            // no type at all, so the filter stays wide and the parser decides.
+            val templatePicker = rememberLauncherForActivityResult(
+                ActivityResultContracts.OpenDocument(),
+            ) { uri ->
+                if (uri != null) {
+                    val text = runCatching {
+                        context.contentResolver.openInputStream(uri)
+                            ?.bufferedReader()?.use { it.readText() }
+                    }.getOrNull()
+                    if (text != null) {
+                        vm.importTemplate(text)
+                    } else {
+                        scope.launch { snackbarHostState.showSnackbar("Could not read that file") }
+                    }
+                }
+            }
+
+            LaunchedEffect(Unit) {
+                vm.eventFlow.collect { event ->
+                    when (event) {
+                        is SetsEvent.Imported -> {
+                            snackbarHostState.showSnackbar(
+                                context.getString(
+                                    R.string.import_done, event.name, event.alarmCount,
+                                ),
+                            )
+                        }
+
+                        is SetsEvent.ImportFailed ->
+                            snackbarHostState.showSnackbar(event.reason)
+                    }
+                }
+            }
 
             SetsScreen(
                 state = state,
@@ -114,7 +151,11 @@ private fun AlarmSetsNavHost(container: AppContainer) {
                         navController.navigate(Routes.setEditor(id))
                     }
                 },
+                onImportSet = {
+                    templatePicker.launch(arrayOf("application/json", "text/*", "*/*"))
+                },
                 onOpenSettings = { navController.navigate(Routes.SETTINGS) },
+                snackbarHostState = snackbarHostState,
             )
         }
 

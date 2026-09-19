@@ -123,6 +123,66 @@ class TemplateCodecTest {
     }
 
     @Test
+    fun `a hand-written timetable imports as play-once bells`() {
+        // The shape a generated school timetable actually has on disk. Written
+        // out literally rather than produced by export(), so that a change to
+        // the schema breaks this test instead of silently invalidating files
+        // people already have.
+        val onDisk = """
+            {
+              "format": "alarmsets.template",
+              "version": 1,
+              "name": "School day",
+              "note": "Every bell plays once and stops by itself.",
+              "accent": "BLUE",
+              "alarms": [
+                {
+                  "label": "Period 1",
+                  "time": "07:50",
+                  "days": ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"],
+                  "ringtoneKey": "electric_bell_long",
+                  "vibrate": false,
+                  "volumePercent": 80,
+                  "autoSilenceMinutes": 10,
+                  "snoozeMinutes": 9,
+                  "snoozeEnabled": false,
+                  "ringBehaviour": "PLAY_ONCE"
+                },
+                {
+                  "label": "Break",
+                  "time": "08:35",
+                  "days": ["MONDAY", "TUESDAY", "WEDNESDAY", "THURSDAY", "FRIDAY"],
+                  "ringtoneKey": "fur_elise",
+                  "vibrate": false,
+                  "volumePercent": 80,
+                  "autoSilenceMinutes": 10,
+                  "snoozeMinutes": 9,
+                  "snoozeEnabled": false,
+                  "ringBehaviour": "PLAY_ONCE"
+                }
+              ]
+            }
+        """.trimIndent()
+
+        val set = codec.parse(onDisk)
+            .mapCatching { codec.toAlarmSet(it).getOrThrow() }
+            .getOrThrow()
+
+        assertEquals("School day", set.name)
+        assertEquals(2, set.alarms.size)
+        assertTrue(set.alarms.all { it.ringBehaviour == RingBehaviour.PLAY_ONCE })
+        assertTrue(set.alarms.all { it.days == WeekDays.WEEKDAYS })
+        assertTrue(set.alarms.none { it.snooze.enabled })
+        assertEquals(TimeOfDay.of(7, 50), set.alarms[0].time)
+        assertEquals(RingtoneRef.Bundled("electric_bell_long"), set.alarms[0].ringtone)
+        // Order on disk is the order in the editor.
+        assertEquals(0, set.alarms[0].sortIndex)
+        assertEquals(1, set.alarms[1].sortIndex)
+        // And it still arrives switched off, however many alarms it carries.
+        assertFalse(set.enabled)
+    }
+
+    @Test
     fun `rejects json that is not a template`() {
         assertTrue(codec.parse("""{"hello":"world"}""").isFailure)
     }

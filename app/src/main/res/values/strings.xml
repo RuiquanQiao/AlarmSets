@@ -12,6 +12,8 @@
     <string name="alarms_count">%1$d alarms</string>
     <string name="alarms_active_count">%1$d of %2$d on</string>
     <string name="new_set">New set</string>
+    <string name="import_template">Import a template</string>
+    <string name="import_done">Imported %1$s · %2$d alarms, switched off</string>
 
     <!-- Set editor -->
     <string name="set_name">Set name</string>

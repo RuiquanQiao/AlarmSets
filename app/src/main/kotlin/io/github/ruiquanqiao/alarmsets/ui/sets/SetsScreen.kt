@@ -24,6 +24,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.FileOpen
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.automirrored.filled.VolumeOff
 import androidx.compose.material.icons.filled.Warning
@@ -36,9 +37,12 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberTopAppBarState
 import androidx.compose.runtime.Composable
@@ -73,7 +77,9 @@ fun SetsScreen(
     onAlarmEnabled: (Long, Boolean) -> Unit,
     onOpenSet: (Long) -> Unit,
     onCreateSet: () -> Unit,
+    onImportSet: () -> Unit,
     onOpenSettings: () -> Unit,
+    snackbarHostState: SnackbarHostState,
 ) {
     val scrollBehavior =
         TopAppBarDefaults.exitUntilCollapsedScrollBehavior(rememberTopAppBarState())
@@ -81,10 +87,17 @@ fun SetsScreen(
 
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             LargeTopAppBar(
                 title = { Text(stringResource(R.string.sets_title)) },
                 actions = {
+                    IconButton(onClick = onImportSet) {
+                        Icon(
+                            Icons.Default.FileOpen,
+                            stringResource(R.string.import_template),
+                        )
+                    }
                     IconButton(onClick = onOpenSettings) {
                         Icon(Icons.Default.Settings, stringResource(R.string.settings))
                     }
@@ -101,7 +114,7 @@ fun SetsScreen(
         },
     ) { padding ->
         if (!state.loading && state.sets.isEmpty()) {
-            EmptyState(onCreateSet, Modifier.padding(padding))
+            EmptyState(onCreateSet, onImportSet, Modifier.padding(padding))
             return@Scaffold
         }
 
@@ -337,7 +350,11 @@ private fun WarningRow(
 }
 
 @Composable
-private fun EmptyState(onCreateSet: () -> Unit, modifier: Modifier = Modifier) {
+private fun EmptyState(
+    onCreateSet: () -> Unit,
+    onImportSet: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Box(modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -360,6 +377,14 @@ private fun EmptyState(onCreateSet: () -> Unit, modifier: Modifier = Modifier) {
                 icon = { Icon(Icons.Default.Add, null) },
                 text = { Text(stringResource(R.string.sets_empty_action)) },
             )
+            Spacer(Modifier.height(8.dp))
+            // Someone arriving with a schedule a friend sent them should not
+            // have to build the first set by hand to discover import exists.
+            TextButton(onClick = onImportSet) {
+                Icon(Icons.Default.FileOpen, null)
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(R.string.import_template))
+            }
         }
     }
 }
